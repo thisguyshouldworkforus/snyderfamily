@@ -1,7 +1,8 @@
 ---
 
   - name: Base Configuration Playbook
-    hosts: all
+    hosts: awx
+    connection: local
     tasks:
 
       - name: Import Repositories
