@@ -1,0 +1,70 @@
+---
+
+  - name: Base Configuration Playbook
+    hosts: all
+    tasks:
+
+      - name: Import Repositories
+        tags: repos
+        import_tasks: repos.yml
+
+      - name: Set Swappiness
+        sysctl:
+          name: vm.swappiness
+          value: '10'
+          state: present
+
+      - name: Remove SELinux & Firewall
+        dnf:
+          name:
+            - firewalld
+            - firewalld-filesystem
+            - selinux-policy
+            - selinux-policy-targeted
+            - rpm-plugin-selinux
+          state: absent
+
+      - name: Setup default .bashrc file
+        file:
+          src: ../files/bashrc
+          dest: /etc/skel/.bashrc
+          state: file
+          owner: root
+          group: root
+
+      - name: Setup root .bashrc file
+        file:
+          src: ../files/bashrc
+          dest: /root/.bashrc
+          state: file
+          owner: root
+          group: root
+
+      - name: Install Utilities
+        dnf:
+          name:
+            - open-vm-tools
+            - rsyslog
+            - nfs-utils
+            - dnf-utils
+            - coreutils
+            - python3
+            - dbus
+            - dbus-common
+            - dbus-daemon
+            - dbus-glib
+            - dbus-libs
+            - dbus-tools
+            - policycoreutils-dbus
+            - python3-dbus
+            - python3-setuptools
+            - python3-pip-wheel
+            - python3-policycoreutils
+          state: latest
+
+      - name: Full System Update
+        command:
+          cmd: dnf -y -q update
+
+      - name: Unconditionally reboot the machine with all defaults
+        reboot:

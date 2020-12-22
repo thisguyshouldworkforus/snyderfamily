@@ -1,0 +1,121 @@
+---
+    - name: Remove Repo Dir
+      file:
+        path: /etc/yum.repos.d
+        state: absent
+
+    - name: Create Repo Dir
+      file:
+        path: /etc/yum.repos.d
+        owner: root
+        group: root
+        mode: '0755'
+        state: directory
+
+    - name: CentOS-AppStream.repo
+      yum_repository:
+        file: CentOS-AppStream
+        name: AppStream
+        description: Appstream
+        mirrorlist: http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=AppStream&infra=$infra
+        baseurl: http://mirror.centos.org/$contentdir/$releasever/AppStream/$basearch/os/
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+        state: present
+
+    - name: CentOS-PowerTools.repo
+      yum_repository:
+        file: CentOS-PowerTools
+        name: PowerTools
+        description: PowerTools
+        mirrorlist: http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=PowerTools&infra=$infra
+        baseurl: http://mirror.centos.org/$contentdir/$releasever/PowerTools/$basearch/os/
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+        state: present
+
+    - name: CentOS-Base.repo
+      yum_repository:
+        file: CentOS-Base
+        name: BaseOS
+        description: BaseOS
+        mirrorlist: http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=BaseOS&infra=$infra
+        baseurl: http://mirror.centos.org/$contentdir/$releasever/BaseOS/$basearch/os/
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+        state: present
+
+    - name: CentOS-centosplus.repo
+      yum_repository:
+        file: CentOS-centosplus
+        name: centosplus
+        description: centosplus
+        mirrorlist: http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=centosplus&infra=$infra
+        baseurl: http://mirror.centos.org/$contentdir/$releasever/centosplus/$basearch/os/
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+        state: present
+
+    - name: CentOS-Extras.repo
+      yum_repository:
+        file: CentOS-Extras
+        name: extras
+        description: extras
+        mirrorlist: http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra
+        baseurl: http://mirror.centos.org/$contentdir/$releasever/extras/$basearch/os/
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+        state: present
+
+    - name: Add EPEL Repository
+      yum_repository:
+        file: epel
+        name: epel
+        description: EPEL YUM Repository
+        baseurl: https://dl.fedoraproject.org/pub/epel/8/Everything/x86_64/
+        gpgkey: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8
+        gpgcheck: yes
+        enabled: yes
+        state: present
+
+    - name: Add RPM Fusion FREE
+      yum_repository:
+        file: rpm_fusion
+        name: rpm_fusion_free
+        description: RPM Fusion Repo
+        baseurl: https://download1.rpmfusion.org/free/el/updates/8/x86_64/
+        gpgcheck: no
+        enabled: yes
+        state: present
+
+    - name: Add RPM Fusion UnFree
+      yum_repository:
+        file: rpm_fusion
+        name: rpm_fusion_unfree
+        description: RPM Fusion UnFree Repo
+        baseurl: https://download1.rpmfusion.org/nonfree/el/updates/8/x86_64/
+        gpgcheck: no
+        enabled: yes
+        state: present
+
+    - name: Rsyslog
+      yum_repository:
+        file: rsyslog
+        name: rsyslog_v8
+        description: Adiscon CentOS-$releasever - local packages for $basearch
+        baseurl: http://rpms.adiscon.com/v8-stable/epel-$releasever/$basearch
+        enabled: yes
+        gpgcheck: yes
+        gpgkey: http://rpms.adiscon.com/RPM-GPG-KEY-Adiscon
+        protect: yes
+        state: present
+
+    - name: Generate a repolist
+      command:
+        cmd: dnf repolist
+        warn: no

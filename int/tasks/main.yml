@@ -1,0 +1,15 @@
+---
+  - name: Default Playbook
+    hosts: base
+    tasks:
+      import_tasks: base.yml
+
+  - name: Default DNS Playbook
+    hosts: dns
+    import_role:
+      name: bertvv.bind
+
+  - name: Default Media Playbook
+    hosts: media
+    tasks:
+      import_tasks: media.yml
