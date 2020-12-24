@@ -106,6 +106,7 @@
     name: "*"
     state: latest
 
-- handlers:
-  name: Rebuild Grub
-  shell: grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
+  handlers:
+    - name: Rebuild Grub
+      shell:
+        cmd: grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
