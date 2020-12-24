@@ -1,16 +1,42 @@
 ---
-  - name: SnyderFamilyINT Playbook
-    hosts: all
-    remote_user: root
-    become: true
-    become_method: sudo
-    roles: base
+- hosts: all
+  remote_user: root
+  become: true
+  become_method: sudo
+  roles:
+    - base
 
-  - name: Default DNS Playbook
-    hosts: dns
-    role: dns
+- hosts: plex
+  remote_user: root
+  become: true
+  become_method: sudo
+  roles:
+    - plex
 
-  - name: Default Media Playbook
-    hosts: media
-    tasks:
-      import_tasks: media.yml
+- hosts: sonarr
+  remote_user: root
+  become: true
+  become_method: sudo
+  roles:
+    - sonarr
+
+- hosts: nzb
+  remote_user: root
+  become: true
+  become_method: sudo
+  roles:
+    - nzb
+
+- hosts: radarr
+  remote_user: root
+  become: true
+  become_method: sudo
+  roles:
+    - radarr
+    
+- hosts: tautulli
+  remote_user: root
+  become: true
+  become_method: sudo
+  roles:
+    - tautulli
