@@ -116,4 +116,6 @@
     state: present
 
 - name: Generate a repolist
-  update_cache: yes
+  dnf:
+    name: "*"
+    update_cache: yes
