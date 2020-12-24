@@ -1,4 +1,8 @@
 ---
+- name: Setup Default Authorized Key
+  ansible.posix.authorized_key:
+    manage_dir: yes
+
 - name: Setup Repositories
   import_tasks: repos.yml
 
