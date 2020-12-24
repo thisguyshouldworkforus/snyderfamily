@@ -54,13 +54,11 @@
     value: '10'
     state: present
 
-# https://github.com/juju4/ansible-ipv6/blob/master/tasks/ipv6-disable.yml#L4-L9
 - name: Disable IPv6 with sysctl
   sysctl:
     name: "{{ item }}"
     value: "1"
     state: present
-    reload: yes
   with_items:
     - net.ipv6.conf.all.disable_ipv6
     - net.ipv6.conf.default.disable_ipv6
@@ -73,7 +71,6 @@
   notify:
     - Rebuild Grub
 
-# https://github.com/UKHomeOffice/ansible-role-grub-cmdline/blob/master/tasks/main.yaml#L23-L30
 - name: Update Grub default config for CentOS 8
   shell: grubby --args="{{ item }}" --update-kernel=ALL
   with_items:
