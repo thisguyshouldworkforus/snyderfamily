@@ -22,7 +22,6 @@
     name: "{{ yum_remove }}"
     state: absent
     autoremove: yes
-    allowerasing: yes
     update_cache: yes
 
 - name: Install Utilities
