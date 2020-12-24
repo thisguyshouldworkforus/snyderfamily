@@ -72,8 +72,6 @@
   shell: grubby --remove-args="{{ item }}" --update-kernel=ALL
   with_items:
     - rhgb
-  notify:
-    - Rebuild Grub
 
 - name: Update Grub default config for CentOS 8
   shell: grubby --args="{{ item }}" --update-kernel=ALL
@@ -82,8 +80,6 @@
     - ipv6.disable=1
     - fsck.mode=force
     - fsck.repair=yes
-  notify:
-    - Rebuild Grub
 
 - name: Setup default .bashrc file
   copy:
@@ -105,8 +101,3 @@
   dnf:
     name: "*"
     state: latest
-
-  handlers:
-    - name: Rebuild Grub
-      shell:
-        cmd: grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
