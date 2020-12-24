@@ -1,0 +1,75 @@
+---
+- name: Set Swappiness
+  sysctl:
+    name: vm.swappiness
+    value: '10'
+    state: present
+
+- name: Remove Utilities
+  vars:
+    yum_remove:
+      - firewalld
+      - firewalld-filesystem
+      - selinux-policy
+      - selinux-policy-targeted
+      - rpm-plugin-selinux
+      - libselinux-utils
+      - libselinux-utils
+      - policycoreutils
+      - policycoreutils-dbus
+      - checkpolicy
+      - python3-audit
+      - python3-libsemanage
+      - python3-policycoreutils
+      - python3-libselinux
+  dnf:
+    name: "{{ yum_remove }}"
+    state: absent
+    autoremove: yes
+    allowerasing: yes
+    update_cache: yes
+
+- name: Install Utilities
+  vars:
+    yum_install:
+      - open-vm-tools
+      - rsyslog
+      - nfs-utils
+      - dnf-utils
+      - coreutils
+      - python3
+      - dbus
+      - dbus-common
+      - dbus-daemon
+      - dbus-glib
+      - dbus-libs
+      - dbus-tools
+      - policycoreutils-dbus
+      - python3-dbus
+      - python3-setuptools
+      - python3-pip-wheel
+      - python3-policycoreutils
+  dnf:
+    name: "{{ yum_install }}"
+    state: latest
+
+- name: Setup default .bashrc file
+  copy:
+    src: bashrc
+    dest: /etc/skel/.bashrc
+    state: file
+    owner: root
+    group: root
+
+- name: Setup root .bashrc file
+  copy:
+    src: bashrc
+    dest: /root/.bashrc
+    state: file
+    owner: root
+    group: root
+
+- name: Upgrade all packages
+  dnf:
+    name: "*"
+    state: latest
