@@ -1,57 +1,88 @@
 ---
+- name: Setup Repositories
+  import_tasks: repos.yml
+
+- name: Remove Utilities
+  dnf:
+    name: "{{ item }}"
+    state: absent
+    autoremove: yes
+    allowerasing: yes
+    update_cache: yes
+  with_items:
+    - firewalld
+    - firewalld-filesystem
+    - selinux-policy
+    - selinux-policy-targeted
+    - rpm-plugin-selinux
+    - libselinux-utils
+    - policycoreutils
+    - policycoreutils-dbus
+    - checkpolicy
+    - python3-audit
+    - python3-libsemanage
+    - python3-policycoreutils
+    - python3-libselinux
+
+- name: Install Utilities
+  dnf:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  with_items:
+    - open-vm-tools
+    - rsyslog
+    - nfs-utils
+    - dnf-utils
+    - coreutils
+    - python3
+    - dbus
+    - dbus-common
+    - dbus-daemon
+    - dbus-glib
+    - dbus-libs
+    - dbus-tools
+    - policycoreutils-dbus
+    - python3-dbus
+    - python3-setuptools
+    - python3-pip-wheel
+    - python3-policycoreutils
+
 - name: Set Swappiness
   sysctl:
     name: vm.swappiness
     value: '10'
     state: present
 
-- name: Remove Utilities
-  vars:
-    yum_remove:
-      - firewalld
-      - firewalld-filesystem
-      - selinux-policy
-      - selinux-policy-targeted
-      - rpm-plugin-selinux
-      - libselinux-utils
-      - libselinux-utils
-      - policycoreutils
-      - policycoreutils-dbus
-      - checkpolicy
-      - python3-audit
-      - python3-libsemanage
-      - python3-policycoreutils
-      - python3-libselinux
-  dnf:
-    name: "{{ yum_remove }}"
-    state: absent
-    autoremove: yes
-    allowerasing: yes
-    update_cache: yes
+# https://github.com/juju4/ansible-ipv6/blob/master/tasks/ipv6-disable.yml#L4-L9
+- name: Disable IPv6 with sysctl
+  sysctl:
+    name: "{{ item }}"
+    value: "1"
+    state: present
+    reload: yes
+  with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+    - net.ipv6.conf.lo.disable_ipv6
 
-- name: Install Utilities
-  vars:
-    yum_install:
-      - open-vm-tools
-      - rsyslog
-      - nfs-utils
-      - dnf-utils
-      - coreutils
-      - python3
-      - dbus
-      - dbus-common
-      - dbus-daemon
-      - dbus-glib
-      - dbus-libs
-      - dbus-tools
-      - policycoreutils-dbus
-      - python3-dbus
-      - python3-setuptools
-      - python3-pip-wheel
-      - python3-policycoreutils
-  dnf:
-    name: "{{ yum_install }}"
-    state: latest
+- name: Update Grub default config for CentOS 8
+  shell: grubby --remove-args="{{ item }}" --update-kernel=ALL
+  with_items:
+    - rhgb
+  notify:
+    - Rebuild Grub
+
+# https://github.com/UKHomeOffice/ansible-role-grub-cmdline/blob/master/tasks/main.yaml#L23-L30
+- name: Update Grub default config for CentOS 8
+  shell: grubby --args="{{ item }}" --update-kernel=ALL
+  with_items:
+    - selinux=0
+    - ipv6.disable=1
+    - fsck.mode=force
+    - fsck.repair=yes
+  notify:
+    - Rebuild Grub
 
 - name: Setup default .bashrc file
   copy:
@@ -73,3 +104,7 @@
   dnf:
     name: "*"
     state: latest
+
+- handlers:
+  name: Rebuild Grub
+  shell: grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
