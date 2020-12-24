@@ -1,13 +1,14 @@
 ---
-  - name: Default Playbook
-    hosts: base
-    tasks:
-      import_tasks: base.yml
+  - name: SnyderFamilyINT Playbook
+    hosts: all
+    remote_user: root
+    become: true
+    become_method: sudo
+    roles: base
 
   - name: Default DNS Playbook
     hosts: dns
-    import_role:
-      name: bertvv.bind
+    role: dns
 
   - name: Default Media Playbook
     hosts: media
