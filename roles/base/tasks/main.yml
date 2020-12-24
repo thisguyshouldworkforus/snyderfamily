@@ -3,50 +3,52 @@
   import_tasks: repos.yml
 
 - name: Remove Utilities
+  vars:
+    yum_remove:
+      - firewalld
+      - firewalld-filesystem
+      - selinux-policy
+      - selinux-policy-targeted
+      - rpm-plugin-selinux
+      - libselinux-utils
+      - policycoreutils
+      - policycoreutils-dbus
+      - checkpolicy
+      - python3-audit
+      - python3-libsemanage
+      - python3-policycoreutils
+      - python3-libselinux
   dnf:
-    name: "{{ item }}"
+    name: "{{ yum_remove }}"
     state: absent
     autoremove: yes
     allowerasing: yes
     update_cache: yes
-  with_items:
-    - firewalld
-    - firewalld-filesystem
-    - selinux-policy
-    - selinux-policy-targeted
-    - rpm-plugin-selinux
-    - libselinux-utils
-    - policycoreutils
-    - policycoreutils-dbus
-    - checkpolicy
-    - python3-audit
-    - python3-libsemanage
-    - python3-policycoreutils
-    - python3-libselinux
 
 - name: Install Utilities
+  vars:
+    yum_install:
+      - open-vm-tools
+      - rsyslog
+      - nfs-utils
+      - dnf-utils
+      - coreutils
+      - python3
+      - dbus
+      - dbus-common
+      - dbus-daemon
+      - dbus-glib
+      - dbus-libs
+      - dbus-tools
+      - policycoreutils-dbus
+      - python3-dbus
+      - python3-setuptools
+      - python3-pip-wheel
+      - python3-policycoreutils
   dnf:
-    name: "{{ item }}"
+    name: "{{ yum_install }}"
     state: latest
     update_cache: yes
-  with_items:
-    - open-vm-tools
-    - rsyslog
-    - nfs-utils
-    - dnf-utils
-    - coreutils
-    - python3
-    - dbus
-    - dbus-common
-    - dbus-daemon
-    - dbus-glib
-    - dbus-libs
-    - dbus-tools
-    - policycoreutils-dbus
-    - python3-dbus
-    - python3-setuptools
-    - python3-pip-wheel
-    - python3-policycoreutils
 
 - name: Set Swappiness
   sysctl:
