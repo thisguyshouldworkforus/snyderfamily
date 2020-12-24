@@ -114,8 +114,3 @@
     gpgkey: http://rpms.adiscon.com/RPM-GPG-KEY-Adiscon
     protect: yes
     state: present
-
-- name: Generate a repolist
-  dnf:
-    name: "*"
-    update_cache: yes
