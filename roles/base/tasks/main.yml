@@ -73,16 +73,16 @@
     checksum: yes
     src: bashrc
     dest: /etc/skel/.bashrc
-    owner: root
-    group: root
+    owner: yes
+    group: yes
 
 - name: Setup root .bashrc file
   ansible.posix.synchronize:
     checksum: yes
     src: bashrc
     dest: /root/.bashrc
-    owner: root
-    group: root
+    owner: yes
+    group: yes
 
 - name: Upgrade all packages
   dnf:
