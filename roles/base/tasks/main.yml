@@ -55,16 +55,6 @@
     value: '10'
     state: present
 
-- name: Disable IPv6 with sysctl
-  sysctl:
-    name: "{{ item }}"
-    value: "1"
-    state: present
-  with_items:
-    - net.ipv6.conf.all.disable_ipv6
-    - net.ipv6.conf.default.disable_ipv6
-    - net.ipv6.conf.lo.disable_ipv6
-
 - name: Update Grub default config for CentOS 8
   shell: grubby --remove-args="{{ item }}" --update-kernel=ALL
   with_items:
@@ -79,14 +69,16 @@
     - fsck.repair=yes
 
 - name: Setup default .bashrc file
-  copy:
+  ansible.posix.synchronize:
+    checksum: yes
     src: bashrc
     dest: /etc/skel/.bashrc
     owner: root
     group: root
 
 - name: Setup root .bashrc file
-  copy:
+  ansible.posix.synchronize:
+    checksum: yes
     src: bashrc
     dest: /root/.bashrc
     owner: root
