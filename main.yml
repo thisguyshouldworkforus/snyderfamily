@@ -3,38 +3,31 @@
   roles:
     - base
 
-#- hosts: plex
-#  remote_user: root
-#  become: true
-#  become_method: sudo
-#  roles:
-#    - plex
-#
-#- hosts: sonarr
-#  remote_user: root
-#  become: true
-#  become_method: sudo
-#  roles:
-#    - sonarr
-#
-#- hosts: nzb
-#  remote_user: root
-#  become: true
-#  become_method: sudo
-#  roles:
-#    - nzb
-#
-#- hosts: radarr
-#  remote_user: root
-#  become: true
-#  become_method: sudo
-#  roles:
-#    - radarr
-#    
-#- hosts: tautulli
-#  remote_user: root
-#  become: true
-#  become_method: sudo
-#  roles:
-#    - tautulli
-#
+- hosts: media
+  tasks:
+    - name: Create Media Group
+      group:
+        name: media
+        gid: 3000
+        state: present
+        system: yes
+
+- hosts: plex
+  roles:
+    - plex
+
+- hosts: sonarr
+  roles:
+    - sonarr
+
+- hosts: nzb
+  roles:
+    - nzb
+
+- hosts: radarr
+  roles:
+    - radarr
+    
+- hosts: tautulli
+  roles:
+    - tautulli
