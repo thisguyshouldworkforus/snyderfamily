@@ -29,7 +29,6 @@ alias grep="grep --color=auto"
 # Change to the working directory
 if rpm -q ansible >/dev/null 2>&1
     then
-        export ANSIBLE_DEBUG=1
         if [[ -d ~/.ansible ]]
             then
                 cd ~/.ansible || echo 'Could not change to ANSIBLE working directory'
