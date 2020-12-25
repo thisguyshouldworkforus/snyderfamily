@@ -16,3 +16,9 @@ export LC_CTYPE=en_US.UTF-8
 alias ll="ls -alh --color=auto"
 alias ls="ls -alh --color=auto"
 alias grep="grep --color=auto"
+
+# Git Export
+if rpm -q git
+    then
+        export GIT_SSH_COMMAND="ssh -i ~/.ssh/ctc_ed25519"
+fi

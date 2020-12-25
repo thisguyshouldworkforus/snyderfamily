@@ -82,7 +82,6 @@
   copy:
     src: bashrc
     dest: /etc/skel/.bashrc
-    state: file
     owner: root
     group: root
 
@@ -90,7 +89,6 @@
   copy:
     src: bashrc
     dest: /root/.bashrc
-    state: file
     owner: root
     group: root
 
