@@ -1,0 +1,11 @@
+---
+- name: Set a hostname
+  hostname:
+    name: sabnzb
+
+- name: Insert HOSTNAME into Network
+  lineinfile:
+    path: /etc/sysconfig/network
+    regexp: '^(.*)$'
+    line: 'HOSTNAME=nzb\n\1'
+    backrefs: yes
