@@ -2,3 +2,19 @@
 - name: Set a hostname
   hostname:
     name: plex
+
+- name: Import the Plex Repo
+  yum_repository:
+    name: "PlexRepo"
+    description: "Plex Media Server Linux Repository"
+    baseurl: "https://downloads.plex.tv/repo/rpm/$basearch/"
+    enabled: yes
+    gpgkey: "https://downloads.plex.tv/plex-keys/PlexSign.key"
+    gpgcheck: yes
+    keepcache: "0"
+    metadata_expire: "1"
+
+- name: Install Plex
+  dnf:
+    name: plex
+    state: latest
