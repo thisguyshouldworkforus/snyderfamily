@@ -5,12 +5,33 @@
 
 - hosts: media
   tasks:
-    - name: Create Media Group
+    - name: Create Media Group on all Media Servers
       group:
         name: media
         gid: 3000
         state: present
         system: yes
+    - name: Create OPT APPS directory on all Media Servers
+      file:
+        path: /opt/apps
+        state: directory
+        group: media
+        owner: root
+        mode: '770'
+    - name: Create OPT APPS MEDIA directory on all Media Servers
+      file:
+        path: /opt/apps/media
+        state: directory
+        group: media
+        owner: root
+        mode: '770'
+    - name: Mount NFS location on all Media Servers
+      ansible.posix.mount:
+        src: wickednas.snyderfamily.int:/plex
+        path: /opt/apps/media
+        fstype: nfs
+        opts: defaults,rw
+        state: mounted
 
 - hosts: plex
   roles:
@@ -31,3 +52,7 @@
 - hosts: tautulli
   roles:
     - tautulli
+
+- hosts: transmission
+  roles:
+    - transmission
