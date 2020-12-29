@@ -1,4 +1,10 @@
 ---
+- name: Disable GNOME Initial Setup
+  lineinfile:
+      path: /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
+      line: "X-GNOME-Autostart-enabled=false"
+      state: present
+      
 - name: Setup Repositories
   import_tasks: repos.yml
 
