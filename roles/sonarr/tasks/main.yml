@@ -3,6 +3,14 @@
   hostname:
     name: sonarr
 
+- name: Setup /etc/hosts file
+  ansible.posix.synchronize:
+    checksum: yes
+    src: hosts
+    dest: /etc/hosts
+    owner: yes
+    group: yes
+
 - name: Create Media Group on all Media Servers
   group:
     name: media
