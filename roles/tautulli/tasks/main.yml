@@ -2,3 +2,43 @@
 - name: Set a hostname
   hostname:
     name: tautulli
+
+- name: Create Media Group on all Media Servers
+  group:
+    name: media
+    gid: 3000
+    state: present
+    system: yes
+
+- name: Create OPT APPS directory on all Media Servers
+  file:
+    path: /opt/apps
+    state: directory
+    group: media
+    owner: root
+    mode: '770'
+
+- name: Create the tautulli user
+  user:
+    name: tautulli
+    home: /opt/apps/tautulli
+    create_home: yes
+    move_home: yes
+    group: media
+    state: present
+
+- name: Create OPT APPS MEDIA directory on all Media Servers
+  file:
+    path: /opt/apps/media
+    state: directory
+    group: media
+    owner: root
+    mode: '770'
+
+- name: Mount NFS location on all Media Servers
+  ansible.posix.mount:
+    src: wickednas.snyderfamily.int:/plex
+    path: /opt/apps/media
+    fstype: nfs
+    opts: defaults,rw
+    state: mounted
