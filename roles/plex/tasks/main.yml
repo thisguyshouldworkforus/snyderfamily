@@ -44,10 +44,26 @@
     owner: root
     mode: '770'
 
-- name: Mount NFS location on all Media Servers
+- name: Create OPT APPS PLEX APPDATA directory
+  file:
+    path: /opt/apps/plex/.appdata
+    state: directory
+    group: media
+    owner: root
+    mode: '770'
+
+- name: Mount NFS location on Plex
   ansible.posix.mount:
     src: wickednas.snyderfamily.int:/plex
     path: /opt/apps/media
+    fstype: nfs
+    opts: defaults,rw
+    state: mounted
+
+- name: Mount Plex AppData
+  ansible.posix.mount:
+    src: wickednas.snyderfamily.int:/plex_appdata
+    path: /opt/apps/plex/.appdata
     fstype: nfs
     opts: defaults,rw
     state: mounted
@@ -65,5 +81,33 @@
 
 - name: Install Plex
   dnf:
-    name: plex
+    name: plexmediaserver
     state: latest
+
+- name: Create the plex override directory
+  file:
+    path: "/etc/systemd/system/plexmediaserver.service.d"
+    state: directory
+    owner: root
+    group: media
+    mode: '0770'
+
+- name: Setup the Plex Override File
+  ansible.posix.synchronize:
+    checksum: yes
+    src: override.conf
+    dest: "/etc/systemd/system/plexmediaserver.service.d/override.conf"
+    owner: yes
+    group: yes
+  register: override
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  when: override.changed
+
+- name: Enable and Start Plex Media Server
+  systemd:
+    name: plexmediaserver
+    enabled: yes
+    state: started
