@@ -45,7 +45,7 @@
   git:
     repo: https://github.com/Tautulli/Tautulli.git
     clone: yes
-    dest: /opt/apps/tautulli
+    dest: /opt/apps/tautulli/.appdata
 
 - name: Copy systemd service file
   ansible.posix.synchronize:

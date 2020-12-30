@@ -4,7 +4,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/apps/tautulli/Tautulli.py --config /opt/apps/tautulli/config.ini --datadir /opt/apps/tautulli/ --quiet --nolaunch
+ExecStart=/usr/bin/python3 /opt/apps/tautulli/.appdata/Tautulli.py --config /opt/apps/tautulli/.appdata/config.ini --datadir /opt/apps/tautulli/.appdata --quiet --nolaunch
 User=tautulli
 Group=media
 Restart=on-abnormal
