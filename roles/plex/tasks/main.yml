@@ -60,14 +60,6 @@
     opts: defaults,rw
     state: mounted
 
-- name: Mount Plex AppData
-  ansible.posix.mount:
-    src: wickednas.snyderfamily.int:/plex_appdata
-    path: /opt/apps/plex/.appdata
-    fstype: nfs
-    opts: defaults,rw
-    state: mounted
-
 - name: Import the Plex Repo
   yum_repository:
     name: "PlexRepo"
