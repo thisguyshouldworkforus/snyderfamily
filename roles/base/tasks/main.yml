@@ -3,20 +3,22 @@
   stat:
     path: /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
     follow: no
-  register: p
+  register: gnome
 
 - name: Disable GNOME Initial Setup
   lineinfile:
     path: /etc/xdg/autostart/gnome-initial-setup-first-login.desktop
     line: "X-GNOME-Autostart-enabled=false"
     state: present
-  when: p.stat.exists
+  when: gnome.stat.exists
 
-- name: Install Chrome
+- name: Install Chrome on GNOME Desktop
   dnf:
     name: 'https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
     state: present
-  when: p.stat.exists
+    disable_gpg_check: yes
+    update_cache: yes
+  when: gnome.stat.exists
       
 - name: Setup Repositories
   import_tasks: repos.yml
@@ -107,3 +109,10 @@
   dnf:
     name: "*"
     state: latest
+  register: sysupdates
+
+- name: Reboot System
+  reboot:
+    msg: 'Rebooted because of package updates'
+    reboot_timeout: 300
+  when: sysupdates.changed
