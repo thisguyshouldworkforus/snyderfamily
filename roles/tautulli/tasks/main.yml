@@ -36,6 +36,11 @@
     group: media
     state: present
 
+- name: Install GIT
+  dnf:
+    name: git
+    state: latest
+
 - name: Install Tautulli
   git:
     repo: https://github.com/Tautulli/Tautulli.git
