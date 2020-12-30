@@ -11,6 +11,12 @@
     line: "X-GNOME-Autostart-enabled=false"
     state: present
   when: p.stat.exists
+
+- name: Install Chrome
+  dnf:
+    name: 'https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+    state: present
+  when: p.stat.exists
       
 - name: Setup Repositories
   import_tasks: repos.yml
