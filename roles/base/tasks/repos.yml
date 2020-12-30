@@ -12,6 +12,17 @@
     mode: '0755'
     state: directory
 
+- name: Create the Google Repository
+  yum_repository:
+    file: google-chrome
+    name: google-chrome
+    description: Google Chrome RPM repository
+    baseurl: http://dl.google.com/linux/chrome/rpm/stable/x86_64
+    enabled: 1
+    gpgcheck: 1
+    gpgkey: https://dl.google.com/linux/linux_signing_key.pub
+  when: gnome.stat.exists
+
 - name: CentOS-AppStream.repo
   yum_repository:
     file: CentOS-AppStream

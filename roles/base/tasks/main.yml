@@ -12,16 +12,15 @@
     state: present
   when: gnome.stat.exists
 
-- name: Install Chrome on GNOME Desktop
-  dnf:
-    name: 'https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
-    state: present
-    disable_gpg_check: yes
-    update_cache: yes
-  when: gnome.stat.exists
-      
 - name: Setup Repositories
   import_tasks: repos.yml
+
+- name: Install Chrome on GNOME Desktop
+  dnf:
+    name: google-chrome-stable
+    state: present
+    update_cache: yes
+  when: gnome.stat.exists
 
 - name: Remove Utilities
   vars:

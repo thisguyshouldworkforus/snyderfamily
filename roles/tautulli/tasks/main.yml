@@ -47,6 +47,14 @@
     clone: yes
     dest: /opt/apps/tautulli/.appdata
 
+- name: Update Ownership and Permissions
+  file:
+    path: /opt/apps/tautulli
+    owner: tautulli
+    group: media
+    mode: '0770'
+    recurse: yes
+
 - name: Copy systemd service file
   ansible.posix.synchronize:
     checksum: yes

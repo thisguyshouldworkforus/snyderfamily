@@ -51,3 +51,62 @@
     fstype: nfs
     opts: defaults,rw
     state: mounted
+
+- name: Install GIT
+  dnf:
+    name: git
+    state: latest
+
+- name: Install SabNZB Required Utilities
+  dnf:
+    vars:
+      sab_tools:
+        - par2cmdline
+        - unrar
+    name: "{{ sab_tools }}"
+    state: latest
+
+- name: Install SabNZB Python Utilities
+  pip:
+    vars:
+      sab_pypi:
+        - sabyenc3
+        - Cheetah
+    name: "{{ sab_pypi }}"
+    state: latest
+
+- name: Install SabNZB
+  git:
+    repo: https://github.com/sabnzbd/sabnzbd
+    clone: yes
+    dest: /opt/apps/sabnzb/.appdata
+    version: master
+
+- name: Update Ownership and Permissions
+  file:
+    path: /opt/apps/sabnzb/
+    owner: sabnzb
+    group: media
+    mode: '0770'
+    recurse: yes
+
+- name: Copy systemd service file
+  ansible.posix.synchronize:
+    checksum: yes
+    src: sabnzb.service
+    dest: /etc/systemd/system/sabnzb.service
+    owner: yes
+    group: yes
+  register: systemd
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  when: systemd.changed
+
+- name: Enable and Start SabNZB
+  systemd:
+    name: sabnzb
+    enabled: yes
+    state: started
+
