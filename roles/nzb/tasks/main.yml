@@ -66,13 +66,14 @@
     name: "{{ sab_tools }}"
     state: latest
 
-- name: Install SabNZB Python Utilities
-  vars:
-    sab_pypi:
-      - sabyenc3
-      - Cheetah
+- name: Install SabEnc
   pip:
-    name: "{{ sab_pypi }}"
+    name: sabyenc3
+    state: latest
+
+- name: Install Cheetah
+  pip:
+    name: Cheetah
     state: latest
 
 - name: Install SabNZB
