@@ -58,20 +58,20 @@
     state: latest
 
 - name: Install SabNZB Required Utilities
+  vars:
+    sab_tools:
+      - par2cmdline
+      - unrar
   dnf:
-    vars:
-      sab_tools:
-        - par2cmdline
-        - unrar
     name: "{{ sab_tools }}"
     state: latest
 
 - name: Install SabNZB Python Utilities
+  vars:
+    sab_pypi:
+      - sabyenc3
+      - Cheetah
   pip:
-    vars:
-      sab_pypi:
-        - sabyenc3
-        - Cheetah
     name: "{{ sab_pypi }}"
     state: latest
 
