@@ -62,6 +62,7 @@
     sab_tools:
       - par2cmdline
       - unrar
+      - python3-cheetah
   dnf:
     name: "{{ sab_tools }}"
     state: latest
@@ -69,11 +70,6 @@
 - name: Install SabEnc
   pip:
     name: sabyenc3
-    state: latest
-
-- name: Install Cheetah
-  pip:
-    name: Cheetah
     state: latest
 
 - name: Install SabNZB
