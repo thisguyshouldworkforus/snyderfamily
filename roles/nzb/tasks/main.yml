@@ -63,13 +63,9 @@
       - par2cmdline
       - unrar
       - python3-cheetah
+      - python3-feedparser
   dnf:
     name: "{{ sab_tools }}"
-    state: latest
-
-- name: Install SabEnc
-  pip:
-    name: sabyenc3
     state: latest
 
 - name: Install SabNZB
@@ -78,6 +74,11 @@
     clone: yes
     dest: /opt/apps/sabnzb/.appdata
     version: master
+
+- name: Install SabNZB Required Python Modules
+  pip:
+    requirements: /opt/apps/sabnzb/.appdata/requirements.txt
+    state: present
 
 - name: Update Ownership and Permissions
   file:
