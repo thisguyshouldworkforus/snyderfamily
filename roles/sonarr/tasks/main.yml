@@ -51,3 +51,94 @@
     fstype: nfs
     opts: defaults,rw
     state: mounted
+
+- name: Import GPG Key
+  rpm_key:
+    key: "http://pool.sks-keyservers.net/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef"
+    state: present
+
+- name: Import the Mono Repo
+  yum_repository:
+    name: "mono-centos8-stable"
+    description: "Mono Project Linux Repository"
+    baseurl: "https://download.mono-project.com/repo/centos8-stable/"
+    enabled: yes
+    gpgkey: "https://download.mono-project.com/repo/xamarin.gpg"
+    gpgcheck: yes
+    keepcache: "0"
+    metadata_expire: "1"
+
+- name: Import Sonarr Required Utilities
+  vars:
+    sonarr_tools:
+      - wget
+      - git
+      - par2cmdline
+      - p7zip
+      - unrar
+      - unzip
+      - tar
+      - gcc
+      - python3-feedparser
+      - python3-configobj
+      - python3-cheetah
+      - python3-dbus
+      - python3-devel
+      - libxslt-devel
+      - yum-utils
+      - mediainfo
+      - libzen
+      - libmediainfo
+      - curl
+      - gettext
+      - mono-core
+      - mono-devel
+      - sqlite
+  dnf:
+    name: "{{ sonarr_tools }}"
+    state: latest
+    update_cache: yes
+
+- name: Get Sonarr Sources
+  get_url:
+    url: http://update.sonarr.tv/v2/master/mono/NzbDrone.master.tar.gz
+    dest: /opt/apps/sonarr
+
+- name: Unarchive Sonarr Sources
+  unarchive:
+    src: /opt/apps/sonarr/NzbDrone.master.tar.gz
+    dest: /opt/apps/sonarr/.appdata/bin
+
+- name: Remove TAR archive
+  file:
+    name: /opt/apps/sonarr/NzbDrone.master.tar.gz
+    state: absent
+
+- name: Update Ownership and Permissions
+  file:
+    path: /opt/apps/sonarr/
+    owner: sonarr
+    group: media
+    mode: '0770'
+    recurse: yes
+
+- name: Copy systemd service file
+  ansible.posix.synchronize:
+    checksum: yes
+    src: sonarr.service
+    dest: /etc/systemd/system/sonarr.service
+    owner: yes
+    group: yes
+  register: systemd
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  when: systemd.changed
+
+- name: Enable and Start Sonarr
+  systemd:
+    name: sonarr
+    enabled: yes
+    state: started
+

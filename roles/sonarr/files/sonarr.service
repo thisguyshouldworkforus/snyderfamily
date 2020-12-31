@@ -1,0 +1,13 @@
+[Unit]
+Description=Sonarr Daemon
+After=syslog.target network.target
+
+[Service]
+User=sonarr
+Group=media
+Type=simple
+ExecStart=/usr/bin/mono /opt/apps/sonarr/.appdata/bin/NzbDrone.exe -nobrowser -data /opt/apps/sonarr/.appdata/
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
