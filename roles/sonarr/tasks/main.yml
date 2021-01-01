@@ -36,13 +36,30 @@
     group: media
     state: present
 
-- name: Create OPT APPS MEDIA directory on all Media Servers
+- name: Create OPT APPS MEDIA directory
   file:
     path: /opt/apps/media
     state: directory
     group: media
     owner: root
     mode: '770'
+
+- name: Create OPT APPS APPDATA directory
+  file:
+    path: /opt/apps/sonarr/.appdata/
+    state: directory
+    group: media
+    owner: sonarr
+    mode: '770'
+
+- name: Create OPT APPS APPDATA BIN directory
+  file:
+    path: /opt/apps/sonarr/.appdata/bin
+    state: directory
+    group: media
+    owner: sonarr
+    mode: '770'
+
 
 - name: Mount NFS location on all Media Servers
   ansible.posix.mount:
