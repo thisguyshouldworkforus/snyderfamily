@@ -106,6 +106,7 @@
 
 - name: Unarchive Sonarr Sources
   unarchive:
+    remote_src: yes
     src: /opt/apps/sonarr/NzbDrone.master.tar.gz
     dest: /opt/apps/sonarr/.appdata/bin
 
