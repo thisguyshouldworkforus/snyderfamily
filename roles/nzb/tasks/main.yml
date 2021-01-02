@@ -36,9 +36,9 @@
     group: media
     state: present
 
-- name: Create OPT APPS MEDIA directory on all Media Servers
+- name: Create OPT APPS NZBAPPDATA directory on all Media Servers
   file:
-    path: /opt/apps/media
+    path: /opt/apps/nzb_appdata
     state: directory
     group: media
     owner: root
@@ -46,8 +46,8 @@
 
 - name: Mount NFS location on all Media Servers
   ansible.posix.mount:
-    src: wickednas.snyderfamily.int:/plex
-    path: /opt/apps/media
+    src: wickednas.snyderfamily.int:/nzb_appdata
+    path: /opt/apps/nzb_appdata
     fstype: nfs
     opts: defaults,rw
     state: mounted
