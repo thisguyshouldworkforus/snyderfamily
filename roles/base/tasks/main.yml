@@ -18,7 +18,7 @@
 - name: Install Chrome on GNOME Desktop
   dnf:
     name: google-chrome-stable
-    state: present
+    state: latest
     update_cache: yes
   when: gnome.stat.exists
 
