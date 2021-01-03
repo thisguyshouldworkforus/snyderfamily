@@ -84,6 +84,7 @@
     opts: defaults,rw
     state: mounted
 
+# Install the application
 - name: Import GPG Key
   rpm_key:
     key: "http://pool.sks-keyservers.net/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef"
@@ -133,18 +134,28 @@
 
 - name: Get Sonarr Sources
   get_url:
-    url: http://update.sonarr.tv/v2/master/mono/NzbDrone.master.tar.gz
-    dest: /opt/apps/sonarr
+    url: https://services.sonarr.tv/v1/download/phantom-develop/latest?version=3&os=linux
+    dest: /opt/apps/sonarr/sonarr.tar.gz
 
 - name: Unarchive Sonarr Sources
   unarchive:
     remote_src: yes
-    src: /opt/apps/sonarr/NzbDrone.master.tar.gz
-    dest: /opt/apps/sonarr/.appdata/bin
+    src: /opt/apps/sonarr/sonarr.tar.gz
+    dest: /opt/apps/sonarr/.appdata/
+
+- name: Move folder
+  stat:
+    path: /opt/apps/sonarr/.appdata/Sonarr
+  register: virginpath
+
+- name: Rename Sonarr to bin
+  command:
+    cmd: mv /opt/apps/sonarr/.appdata/Sonarr /opt/apps/sonarr/.appdata/bin
+  when: virginpath.stats.exists
 
 - name: Remove TAR archive
   file:
-    name: /opt/apps/sonarr/NzbDrone.master.tar.gz
+    name: /opt/apps/sonarr/sonarr.tar.gz
     state: absent
 
 - name: Update Ownership and Permissions
