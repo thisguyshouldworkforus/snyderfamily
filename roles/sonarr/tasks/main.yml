@@ -52,14 +52,6 @@
     owner: sonarr
     mode: '770'
 
-- name: Create OPT APPS APPDATA BIN directory
-  file:
-    path: /opt/apps/sonarr/.appdata/bin
-    state: directory
-    group: media
-    owner: sonarr
-    mode: '770'
-
 - name: Create OPT APPS NZBAPPDATA directory on all Media Servers
   file:
     path: /opt/apps/nzb_appdata
@@ -151,7 +143,7 @@
 - name: Rename Sonarr to bin
   command:
     cmd: mv /opt/apps/sonarr/.appdata/Sonarr /opt/apps/sonarr/.appdata/bin
-  when: virginpath.stats.exists
+  when: virginpath.stat.exists
 
 - name: Remove TAR archive
   file:
