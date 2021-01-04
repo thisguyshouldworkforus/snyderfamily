@@ -1,0 +1,5 @@
+---
+  - name: Plex Role
+    hosts: plex.snyderfamily.int
+    roles:
+      - plex

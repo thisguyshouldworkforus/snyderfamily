@@ -1,0 +1,5 @@
+---
+  - name: NZB Role
+    hosts: sabnzb.snyderfamily.int
+    roles:
+      - nzb
