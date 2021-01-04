@@ -1,5 +1,5 @@
 ---
   - name: Tautulli Role
-    hosts: tautulli.snyderfamily.int
+    hosts: tautulli
     roles:
       - tautulli

@@ -1,5 +1,5 @@
 ---
   - name: radarr Role
-    hosts: radarr.snyderfamily.int
+    hosts: radarr
     roles:
       - radarr

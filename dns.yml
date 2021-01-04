@@ -1,5 +1,5 @@
 ---
   - name: DNS Role
-    hosts: dns.snyderfamily.int
+    hosts: dns
     roles:
       - dns

@@ -1,5 +1,5 @@
 ---
   - name: Transmission Role
-    hosts: transmission.snyderfamily.int
+    hosts: transmission
     roles:
       - transmission

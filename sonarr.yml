@@ -1,5 +1,5 @@
 ---
   - name: sonarr Role
-    hosts: sonarr.snyderfamily.int
+    hosts: sonarr
     roles:
       - sonarr

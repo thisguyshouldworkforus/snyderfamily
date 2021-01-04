@@ -1,5 +1,5 @@
 ---
   - name: IDM Role
-    hosts: idm.snyderfamily.int
+    hosts: idm
     roles:
       - idm
