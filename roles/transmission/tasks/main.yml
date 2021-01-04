@@ -70,6 +70,14 @@
     group: yes
   register: systemd
 
+- name: Copy media functions file
+  ansible.posix.synchronize:
+    checksum: yes
+    src: mediafunctions.sh
+    dest: /etc/profile.d/mediafunctions.sh
+    owner: yes
+    group: yes
+
 - name: Reload systemd
   systemd:
     daemon_reload: yes
