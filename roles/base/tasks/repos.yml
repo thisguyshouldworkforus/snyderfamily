@@ -12,6 +12,10 @@
     mode: '0755'
     state: directory
 
+- name: Refresh RHSM
+  shell:
+    cmd: subscription-manager refresh
+
 - name: Create the Google Repository
   yum_repository:
     file: google-chrome
@@ -22,61 +26,6 @@
     gpgcheck: 1
     gpgkey: https://dl.google.com/linux/linux_signing_key.pub
   when: gnome.stat.exists
-
-- name: CentOS-AppStream.repo
-  yum_repository:
-    file: CentOS-AppStream
-    name: AppStream
-    description: Appstream
-    baseurl: https://mirror.arizona.edu/centos/8/AppStream/x86_64/os/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: https://mirror.arizona.edu/centos/RPM-GPG-KEY-CentOS-Official
-    state: present
-
-- name: CentOS-PowerTools.repo
-  yum_repository:
-    file: CentOS-PowerTools
-    name: PowerTools
-    description: PowerTools
-    baseurl: https://mirror.arizona.edu/centos/8/PowerTools/x86_64/os/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: https://mirror.arizona.edu/centos/RPM-GPG-KEY-CentOS-Official
-    state: present
-
-- name: CentOS-Base.repo
-  yum_repository:
-    file: CentOS-Base
-    name: BaseOS
-    description: BaseOS
-    baseurl: https://mirror.arizona.edu/centos/8/BaseOS/x86_64/os/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: https://mirror.arizona.edu/centos/RPM-GPG-KEY-CentOS-Official
-    state: present
-
-- name: CentOS-centosplus.repo
-  yum_repository:
-    file: CentOS-centosplus
-    name: centosplus
-    description: centosplus
-    baseurl: https://mirror.arizona.edu/centos/8/centosplus/x86_64/os/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: https://mirror.arizona.edu/centos/RPM-GPG-KEY-CentOS-Official
-    state: present
-
-- name: CentOS-Extras.repo
-  yum_repository:
-    file: CentOS-Extras
-    name: extras
-    description: extras
-    baseurl: https://mirror.arizona.edu/centos/8/extras/x86_64/os/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: https://mirror.arizona.edu/centos/RPM-GPG-KEY-CentOS-Official
-    state: present
 
 - name: Add EPEL Repository
   yum_repository:
