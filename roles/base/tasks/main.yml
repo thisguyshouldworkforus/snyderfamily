@@ -79,6 +79,10 @@
   shell: grubby --remove-args="{{ item }}" --update-kernel=ALL
   with_items:
     - rhgb
+    - selinux=0
+    - ipv6.disable=1
+    - fsck.mode=force
+    - fsck.repair=yes
 
 - name: Update Grub default config for CentOS 8
   shell: grubby --args="{{ item }}" --update-kernel=ALL
