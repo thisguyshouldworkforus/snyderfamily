@@ -1,40 +1,240 @@
 #!/bin/bash
-#.bashrc
+
+if [ -f /etc/bashrc ]
+    then
+        source /etc/bashrc
+fi
+
+[ -z "$PS1" ] && return
 
 function GetIP(){
     ip a | grep -Ei 'inet\ 10\.' | awk '{print $2}' | sed -r 's/\/[0-9]{1,2}//g' | tr '\n' ',' | sed 's/,/, /g' | sed 's/, $//g'
 }
 
-export PS1="\n[ User: \u ]\n[ Host: \h ($(GetIP)) ]\n[ You're in (( \w )) ]\n\n--> "
-export HISTSIZE=10000
-export HISTFILESIZE=10000
-export EDITOR='/bin/vi'
-export TERM='linux'
-export INPUTRC=/etc/inputrc
-export DMALLOC_OPTIONS=debug=0x34f47d83,inter=100,log=logfile
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
+# Determine the hostname
+THISBOX=$(hostname -f | awk -F '.' '{print $1}')
 
-# Git Export
-if rpm -q git >/dev/null 2>&1
+function rebuildrpm(){
+sudo rm -rf /var/cache/dnf /var/lib/rpm/__db* && sudo rpmdb --rebuilddb -vv && sudo dnf clean all
+}
+
+function discoverdisk(){
+while IFS= read -r DISK
+    do
+        echo "Setting Re-Scan in: ${DISK}/scan"
+        echo '- - -' > "${DISK}/scan"
+        echo ""
+        sleep 1
+    done < <(find /sys/class/scsi_host/ -maxdepth 1 -type l)
+}
+function getbig(){
+if [[ "$1" =~ ^[\.a-zA-Z0-9\/]{1,} ]]
     then
-        if [[ -f ~/.ssh/ctc_ed25519 ]]
+        sudo rm -rf /var/cache/dnf /var/tmp/dnf* >/dev/null
+        sudo du -ch "$1" | grep -Ei '^...G|^[0-9]{3}M'
+    else
+        echo "$1 does not meet regex filter"
+fi
+}
+
+function mapscsi(){
+    while IFS= read -r LINE
+        do
+            awk -F '[/:]' '{print "/dev/"$5" - SCSI "$9":"$10}' <<<"$LINE"
+        done < <(ls -alh --color=auto -d /sys/block/sd*/device/scsi_device/*)
+}
+function FixFSTAB(){
+    while IFS= read -r DISK
+        do
+            LABEL=$(awk -F ',' '{print $1}' < <(echo "$DISK"))
+            MOUNT=$(awk -F ',' '{print $2}' < <(echo "$DISK"))
+            UUID=$(grep "$LABEL" < <(blkid) | awk '{print $2}')
+            ESC=$(echo "$LABEL" | sed 's/\//\\\//g')
+            echo -en "\n\nFound: $DISK ($LABEL)\n$UUID\n\n"
+            sed -ri "s/$ESC/$UUID/g" /etc/fstab
+            FIXED=$(grep "$MOUNT" /etc/fstab | sed -r 's/\s{2,}|\t/,/g' | sed 's/,{2,}/,/g')
+            echo -en "Fixed: $FIXED\n\n"
+        done < <(grep -Ei '/dev/sd[a-z]{1}[0-9]{1}' /etc/fstab | sed -r 's/\s{2,}|\t/,/g' | sed 's/,{2,}/,/g')
+}
+function CleanREPO(){
+if sudo rm -rf /var/cache/dnf /var/tmp/dnf* /tmp/dnf*
+    then
+        if sudo dnf -q clean all >/dev/null 2>&1
             then
-                export GIT_SSH_COMMAND="ssh -i ~/.ssh/ctc_ed25519"
+                if sudo subscription-manager refresh >/dev/null 2>&1
+                    then
+                        if ! sudo dnf repolist
+                            then
+                                echo -en "There was an error refreshing the DNF Repolist!\n\n"
+                                return 1
+                        fi
+                    else
+                        echo -en "There was an error refresh the subscription-manager!\n\n"
+                        return 1
+                fi
+            else
+                echo -en "There was an error trying to clean DNF!\n\n"
+                return 1
         fi
+    else
+        echo -en "There was an error deleting the DNF cache!\n\n"
+        return 1
+fi
+}
+function DiskAlert(){
+    LOOP=0
+    while IFS= read -r LINE
+        do
+            FILESYSTEM=$(echo "$LINE" | awk -F ',' '{print $1}')
+            SIZE=$(echo "$LINE" | awk -F ',' '{print $2}')
+            USED=$(echo "$LINE" | awk -F ',' '{print $3}')
+            AVAIL=$(echo "$LINE" | awk -F ',' '{print $4}')
+            USAGE=$(echo "$LINE" | awk -F ',' '{print $5}' | tr -d '%')
+            MOUNT=$(echo "$LINE" | awk -F ',' '{print $6}')
+            if [[ "$USAGE" -ge '90' ]]
+                then
+                    if [[ "$LOOP" -eq '0' ]]
+                        then
+                            echo -en "\n\nDISK ALERTS:"
+                            ((LOOP++))
+                    fi
+                    echo -en "\n\t${FILESYSTEM} ${SIZE} ${USED} ${AVAIL} ${USAGE}% ${MOUNT}"
+            fi
+        done < <(df -hP --local | grep -Ei '^\/dev' | grep -Ev '^/dev/loop|^/dev/sr[0-9]{1}' | sed -r 's/\ |\t/,/g' | sed -r 's/\,{2,}/\,/g')
+}
+function AppAction(){
+if [[ "$THISBOX" = "transmission" ]]
+    then
+        if [[ -n "$1" ]]
+            then
+                INPUT=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+                if [[ "$INPUT" =~ stop|start|restart|status ]]
+                    then
+                        systemctl "$INPUT" $(hostname)-daemon
+                    else
+                        echo -en "Input not expected, quiting for safety!"
+                        return 1
+                fi
+            else
+                echo -en "Input expected, quiting for safety!"
+                return 1
+        fi
+elif [[ "$THISBOX" = "plex" ]]
+    then
+        if [[ -n "$1" ]]
+            then
+                INPUT=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+                if [[ "$INPUT" =~ stop|start|restart|status ]]
+                    then
+                        systemctl "$INPUT" $(hostname)mediaserver
+                    else
+                        echo -en "Input not expected, quiting for safety!"
+                        return 1
+                fi
+            else
+                echo -en "Input expected, quiting for safety!"
+                return 1
+        fi
+elif [[ "$THISBOX" =~ sonarr|sabnzb|tautulli|jackett ]]
+    then
+        if [[ -n "$1" ]]
+            then
+                INPUT=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+                if [[ "$INPUT" =~ stop|start|restart|status ]]
+                    then
+                        systemctl "$INPUT" $(hostname)
+                    else
+                        echo -en "Input not expected, quiting for safety!"
+                        return 1
+                fi
+            else
+                echo -en "Input expected, quiting for safety!"
+                return 1
+        fi
+    else
+        echo -en "Hostname not recognized!"
+        return 1
+fi
+}
+# User specific variables
+# Shell Colors
+# shellcheck disable=SC2034  # Unused variables left for readability
+{
+NORMAL_TEXT="\e[39m"
+BLACK_TEXT="\e[30m"
+RED_TEXT="\e[31m"
+GREEN_TEXT="\e[32m"
+YELLOW_TEXT="\e[33m"
+BLUE_TEXT="\e[34m"
+MAGENTA_TEXT="\e[35m"
+CYAN_TEXT="\e[36m"
+LIGHT_GRAY_TEXT="\e[37m"
+DARK_GRAY_TEXT="\e[90m"
+LIGHT_RED_TEXT="\e[91m"
+LIGHT_GREEN_TEXT="\e[92m"
+LIGHT_YELLOW_TEXT="\e[93m"
+LIGHT_BLUE_TEXT="\e[94m"
+LIGHT_MAGENTA_TEXT="\e[95m"
+LIGHT_CYAN_TEXT="\e[96m"
+WHITE_TEXT="\e[97m"
+NORMAL_BACKGROUND="\e[49m"
+BLACK_BACKGROUND="\e[40m"
+RED_BACKGROUND="\e[41m"
+GREEN_BACKGROUND="\e[42m"
+YELLOW_BACKGROUND="\e[43m"
+BLUE_BACKGROUND="\e[44m"
+MAGENTA_BACKGROUND="\e[45m"
+CYAN_BACKGROUND="\e[46m"
+LIGHT_GRAY_BACKGROUND="\e[47m"
+DARK_GRAY_BACKGROUND="\e[100m"
+LIGHT_RED_BACKGROUND="\e[101m"
+LIGHT_GREEN_BACKGROUND="\e[102m"
+LIGHT_YELLOW_BACKGROUND="\e[103m"
+LIGHT_BLUE_BACKGROUND="\e[104m"
+LIGHT_MAGENTA_BACKGROUND="\e[105m"
+LIGHT_CYAN_BACKGROUND="\e[106m"
+WHITE_BACKGROUND="\e[107m"
+}
+
+# User specific logic
+if [[ "$THISBOX" = "transmission" ]]
+    then
+        PS1="\n[ ${WHITE_BACKGROUND}${BLUE_TEXT}TRANSMISSION SERVER${NORMAL_TEXT}${NORMAL_BACKGROUND} ($(cat /etc/system-release)) ]\n[ USER: \u ]\n[ HOST: $THISBOX ($(GetIP)) ]\n[ You're in (( \w )) ]\n$(DiskAlert)\n\n--> "
+        # Change to completed Torrents Directory
+        cd /opt/apps/nzb_appdata/torrents/complete || echo -en "\n\nCould not change to complete directory\n\n"
+elif [[ "$THISBOX" = "sonarr" ]]
+    then
+        PS1="\n[ ${WHITE_BACKGROUND}${BLUE_TEXT}SONARR SERVER${NORMAL_TEXT}${NORMAL_BACKGROUND} ($(cat /etc/system-release)) ]\n[ USER: \u ]\n[ HOST: $THISBOX ($(GetIP)) ]\n[ You're in (( \w )) ]\n$(DiskAlert)\n\n--> "
+elif [[ "$THISBOX" = "sabnzb" ]]
+    then
+        PS1="\n[ ${WHITE_BACKGROUND}${BLUE_TEXT}SABNZB SERVER${NORMAL_TEXT}${NORMAL_BACKGROUND} ($(cat /etc/system-release)) ]\n[ USER: \u ]\n[ HOST: $THISBOX ($(GetIP)) ]\n[ You're in (( \w )) ]\n$(DiskAlert)\n\n--> "
+elif [[ "$THISBOX" = "tautulli" ]]
+    then
+        PS1="\n[ ${WHITE_BACKGROUND}${BLUE_TEXT}TAUTULLI SERVER${NORMAL_TEXT}${NORMAL_BACKGROUND} ($(cat /etc/system-release)) ]\n[ USER: \u ]\n[ HOST: $THISBOX ($(GetIP)) ]\n[ You're in (( \w )) ]\n$(DiskAlert)\n\n--> "
+elif [[ "$THISBOX" = "plex" ]]
+    then
+        PS1="\n[ ${WHITE_BACKGROUND}${BLUE_TEXT}PLEX SERVER${NORMAL_TEXT}${NORMAL_BACKGROUND} ($(cat /etc/system-release)) ]\n[ USER: \u ]\n[ HOST: $THISBOX ($(GetIP)) ]\n[ You're in (( \w )) ]\n$(DiskAlert)\n\n--> "
+elif [[ "$THISBOX" = "jackett" ]]
+    then
+        PS1="\n[ ${WHITE_BACKGROUND}${BLUE_TEXT}JACKETT SERVER${NORMAL_TEXT}${NORMAL_BACKGROUND} ($(cat /etc/system-release)) ]\n[ USER: \u ]\n[ HOST: $THISBOX ($(GetIP)) ]\n[ You're in (( \w )) ]\n$(DiskAlert)\n\n--> "
 fi
 
-# User Aliases
-alias ll="ls -alh --color=auto"
-alias ls="ls -alh --color=auto"
-alias grep="grep --color=auto"
-
-# Change to the working directory
-if rpm -q ansible >/dev/null 2>&1
+# User specific aliases
+if which python3 >/dev/null 2>&1
     then
-        if [[ -d ~/.ansible ]]
-            then
-                cd ~/.ansible || echo 'Could not change to ANSIBLE working directory'
-        fi
+        PYTHON3=$(which python3)
+        alias python="$PYTHON3"
+        alias pip="$PYTHON3 -m pip"
 fi
+alias ll='ls -alh --color=auto'
+alias ls='ls -alh --color=auto'
+alias LL='ls -alh --color=auto'
+alias LS='ls -alh --color=auto'
+alias grep='grep --color=auto'
+if which rsync >/dev/null 2>&1
+    then
+        MYRSYNC=$(which rsync)
+        alias rsync="${MYRSYNC} -azvhc"
+fi
+##
+clear
