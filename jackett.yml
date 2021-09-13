@@ -1,5 +1,5 @@
 ---
-  - name: radarr Role
+  - name: Jackett Role
     hosts: jackett
     roles:
       - jackett
