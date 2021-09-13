@@ -10,7 +10,7 @@ Type=simple
 User=jackett
 Group=media
 WorkingDirectory=/opt/apps/jackett/.appdata/bin
-ExecStart="/bin/bash /opt/apps/jackett/.appdata/bin/jackett_launcher.sh"
+ExecStart=/bin/bash /opt/apps/jackett/.appdata/bin/jackett_launcher.sh
 TimeoutStopSec=30
 
 [Install]
