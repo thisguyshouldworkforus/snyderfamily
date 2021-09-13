@@ -1,33 +1,33 @@
 ---
-- name: Set a hostname
-  hostname:
-    name: jackett
-
-- name: Create OPT APPS APPDATA directory
-  file:
-    path: /opt/apps/jackett/.appdata/
-    state: directory
-    group: media
-    owner: jackett
-    mode: '770'
-
-- name: Setup /etc/hosts file
-  ansible.posix.synchronize:
-    checksum: yes
-    src: hosts
-    dest: /etc/hosts
-    owner: yes
-    group: yes
-
-# Install the application
-- name: Import jackett Required Utilities
-  vars:
-    jackett_tools:
-      - dotnet-runtime-5.0
-  dnf:
-    name: "{{ jackett_tools }}"
-    state: latest
-    update_cache: yes
+#- name: Set a hostname
+#  hostname:
+#    name: jackett
+#
+#- name: Create OPT APPS APPDATA directory
+#  file:
+#    path: /opt/apps/jackett/.appdata/
+#    state: directory
+#    group: media
+#    owner: jackett
+#    mode: '770'
+#
+#- name: Setup /etc/hosts file
+#  ansible.posix.synchronize:
+#    checksum: yes
+#    src: hosts
+#    dest: /etc/hosts
+#    owner: yes
+#    group: yes
+#
+## Install the application
+#- name: Import jackett Required Utilities
+#  vars:
+#    jackett_tools:
+#      - dotnet-runtime-5.0
+#  dnf:
+#    name: "{{ jackett_tools }}"
+#    state: latest
+#    update_cache: yes
 
 - name: Build Releases url
   shell:
@@ -36,7 +36,7 @@
 
 - name: Debug output
   debug:
-    msg: "{{ github_release.stdout }}"
+    msg: "https://github.com{{ github_release.stdout }}"
 
 #- name: Get jackett Sources
 #  get_url:
