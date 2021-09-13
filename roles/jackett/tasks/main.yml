@@ -36,11 +36,11 @@
 
 - name: Debug output
   debug:
-    msg: "{{ github_release }}"
+    msg: "{{ github_release.stdout }}"
 
 #- name: Get jackett Sources
 #  get_url:
-#    url: https://github.com"{{ github_release }}"
+#    url: https://github.com"{{ github_release.stdout }}"
 #    dest: /opt/apps/jackett/jackett.tar.gz
 #
 #- name: Unarchive jackett Sources
