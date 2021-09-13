@@ -217,6 +217,10 @@ elif [[ "$THISBOX" = "plex" ]]
 elif [[ "$THISBOX" = "jackett" ]]
     then
         PS1="\n[ ${WHITE_BACKGROUND}${BLUE_TEXT}JACKETT SERVER${NORMAL_TEXT}${NORMAL_BACKGROUND} ($(cat /etc/system-release)) ]\n[ USER: \u ]\n[ HOST: $THISBOX ($(GetIP)) ]\n[ You're in (( \w )) ]\n$(DiskAlert)\n\n--> "
+elif [[ "$THISBOX" = "awx" ]]
+    then
+        export GIT_SSH_COMMAND="ssh -q -o 'CheckHostIP=no' -o 'StrictHostKeyChecking=no' -o 'ConnectTimeout=5' -i ~/.ssh/ctc_ed25519"
+        PS1="\n[ ${WHITE_BACKGROUND}${BLUE_TEXT}ANSIBLE AWX SERVER${NORMAL_TEXT}${NORMAL_BACKGROUND} ($(cat /etc/system-release)) ]\n[ USER: \u ]\n[ HOST: $THISBOX ($(GetIP)) ]\n[ You're in (( \w )) ]\n$(DiskAlert)\n\n--> "
 fi
 
 # User specific aliases
