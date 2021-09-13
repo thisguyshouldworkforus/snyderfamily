@@ -14,21 +14,6 @@
     owner: root
     mode: '770'
 
-- name: Create user HOME directories on all Media Servers
-  file:
-    path: /opt/apps/"{{ item }}"
-    state: directory
-    group: media
-    owner: root
-    mode: '770'
-  with items:
-    - plex
-    - jackett
-    - sabnzb
-    - sonarr
-    - tautulli
-    - transmission
-
 - name: Create the users
   user:
     name: "{{ item.name }}"
