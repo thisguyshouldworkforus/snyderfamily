@@ -20,56 +20,23 @@
     group: yes
 
 # Install the application
-- name: Import GPG Key
-  rpm_key:
-    key: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-    state: present
-
-- name: Import the Mono Repo
-  yum_repository:
-    name: "mono-centos8-stable"
-    description: "Mono Project Linux Repository"
-    baseurl: "https://download.mono-project.com/repo/centos8-stable/"
-    enabled: yes
-    gpgkey: "https://download.mono-project.com/repo/xamarin.gpg"
-    gpgcheck: yes
-    keepcache: "0"
-    metadata_expire: "1"
-
 - name: Import jackett Required Utilities
   vars:
     jackett_tools:
-      - wget
-      - git
-      - par2cmdline
-      - p7zip
-      - unrar
-      - unzip
-      - tar
-      - gcc
-      - python3-feedparser
-      - python3-configobj
-      - python3-cheetah
-      - python3-dbus
-      - python3-devel
-      - libxslt-devel
-      - yum-utils
-      - mediainfo
-      - libzen
-      - libmediainfo
-      - curl
-      - gettext
-      - mono-core
-      - mono-devel
-      - sqlite
+      - dotnet-runtime-5.0
   dnf:
     name: "{{ jackett_tools }}"
     state: latest
     update_cache: yes
 
+- name: Build Releases url
+  shell:
+    cmd: curl https://github.com/Jackett/Jackett/releases | grep -Eio '(\/Jackett\/Jackett\/releases\/download\/)(.*)(\/Jackett.Binaries.LinuxAMDx64.tar.gz)' | sort -nr | head -1
+  register: github_release
+
 - name: Get jackett Sources
   get_url:
-    url: https://services.jackett.tv/v1/download/phantom-develop/latest?version=3&os=linux
+    url: https://github.com"{{ github_release }}"
     dest: /opt/apps/jackett/jackett.tar.gz
 
 - name: Unarchive jackett Sources
@@ -80,12 +47,12 @@
 
 - name: Move folder
   stat:
-    path: /opt/apps/jackett/.appdata/jackett
+    path: /opt/apps/jackett/.appdata/Jackett
   register: virginpath
 
 - name: Rename jackett to bin
   command:
-    cmd: mv /opt/apps/jackett/.appdata/jackett /opt/apps/jackett/.appdata/bin
+    cmd: mv /opt/apps/jackett/.appdata/Jackett /opt/apps/jackett/.appdata/bin
   when: virginpath.stat.exists
 
 - name: Remove TAR archive
