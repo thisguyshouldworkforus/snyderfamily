@@ -34,57 +34,61 @@
     cmd: curl https://github.com/Jackett/Jackett/releases | grep -Eio '(\/Jackett\/Jackett\/releases\/download\/)(.*)(\/Jackett.Binaries.LinuxAMDx64.tar.gz)' | sort -nr | head -1
   register: github_release
 
-- name: Get jackett Sources
-  get_url:
-    url: https://github.com"{{ github_release }}"
-    dest: /opt/apps/jackett/jackett.tar.gz
+- name: Debug output
+  debug:
+    msg: "{{ github_release }}"
 
-- name: Unarchive jackett Sources
-  unarchive:
-    remote_src: yes
-    src: /opt/apps/jackett/jackett.tar.gz
-    dest: /opt/apps/jackett/.appdata/
-
-- name: Move folder
-  stat:
-    path: /opt/apps/jackett/.appdata/Jackett
-  register: virginpath
-
-- name: Rename jackett to bin
-  command:
-    cmd: mv /opt/apps/jackett/.appdata/Jackett /opt/apps/jackett/.appdata/bin
-  when: virginpath.stat.exists
-
-- name: Remove TAR archive
-  file:
-    name: /opt/apps/jackett/jackett.tar.gz
-    state: absent
-
-- name: Update Ownership and Permissions
-  file:
-    path: /opt/apps/jackett/
-    owner: jackett
-    group: media
-    mode: '0770'
-    recurse: yes
-
-- name: Copy systemd service file
-  ansible.posix.synchronize:
-    checksum: yes
-    src: jackett.service
-    dest: /etc/systemd/system/jackett.service
-    owner: yes
-    group: yes
-  register: systemd
-
-- name: Reload systemd
-  systemd:
-    daemon_reload: yes
-#  when: systemd.changed
-
-- name: Enable and Start jackett
-  systemd:
-    name: jackett
-    enabled: yes
-    state: started
-
+#- name: Get jackett Sources
+#  get_url:
+#    url: https://github.com"{{ github_release }}"
+#    dest: /opt/apps/jackett/jackett.tar.gz
+#
+#- name: Unarchive jackett Sources
+#  unarchive:
+#    remote_src: yes
+#    src: /opt/apps/jackett/jackett.tar.gz
+#    dest: /opt/apps/jackett/.appdata/
+#
+#- name: Move folder
+#  stat:
+#    path: /opt/apps/jackett/.appdata/Jackett
+#  register: virginpath
+#
+#- name: Rename jackett to bin
+#  command:
+#    cmd: mv /opt/apps/jackett/.appdata/Jackett /opt/apps/jackett/.appdata/bin
+#  when: virginpath.stat.exists
+#
+#- name: Remove TAR archive
+#  file:
+#    name: /opt/apps/jackett/jackett.tar.gz
+#    state: absent
+#
+#- name: Update Ownership and Permissions
+#  file:
+#    path: /opt/apps/jackett/
+#    owner: jackett
+#    group: media
+#    mode: '0770'
+#    recurse: yes
+#
+#- name: Copy systemd service file
+#  ansible.posix.synchronize:
+#    checksum: yes
+#    src: jackett.service
+#    dest: /etc/systemd/system/jackett.service
+#    owner: yes
+#    group: yes
+#  register: systemd
+#
+#- name: Reload systemd
+#  systemd:
+#    daemon_reload: yes
+##  when: systemd.changed
+#
+#- name: Enable and Start jackett
+#  systemd:
+#    name: jackett
+#    enabled: yes
+#    state: started
+#
