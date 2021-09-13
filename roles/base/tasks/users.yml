@@ -24,7 +24,7 @@
     password: "$6$13EsWp/t8Y4T0/xH$m2I7DWDjcodxFTHAZIad1lZSers0XREz1dHkHzckd5TLPxJ5Wipv32gD4236M2BSIc.SE/.6kEc89fyEj/e.00"
     group: media
     state: present
-  withitems:
+  with_items:
     - { name: plex, uid: 2000 }
     - { name: jackett, uid: 2001 }
     - { name: sabnzb, uid: 2002 }
