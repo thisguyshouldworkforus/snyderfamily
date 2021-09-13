@@ -1,94 +1,90 @@
 ---
-#- name: Set a hostname
-#  hostname:
-#    name: jackett
-#
-#- name: Create OPT APPS APPDATA directory
-#  file:
-#    path: /opt/apps/jackett/.appdata/
-#    state: directory
-#    group: media
-#    owner: jackett
-#    mode: '770'
-#
-#- name: Setup /etc/hosts file
-#  ansible.posix.synchronize:
-#    checksum: yes
-#    src: hosts
-#    dest: /etc/hosts
-#    owner: yes
-#    group: yes
-#
-## Install the application
-#- name: Import jackett Required Utilities
-#  vars:
-#    jackett_tools:
-#      - dotnet-runtime-5.0
-#  dnf:
-#    name: "{{ jackett_tools }}"
-#    state: latest
-#    update_cache: yes
+- name: Set a hostname
+  hostname:
+    name: jackett
+
+- name: Create OPT APPS APPDATA directory
+  file:
+    path: /opt/apps/jackett/.appdata/
+    state: directory
+    group: media
+    owner: jackett
+    mode: '770'
+
+- name: Setup /etc/hosts file
+  ansible.posix.synchronize:
+    checksum: yes
+    src: hosts
+    dest: /etc/hosts
+    owner: yes
+    group: yes
+
+# Install the application
+- name: Import jackett Required Utilities
+  vars:
+    jackett_tools:
+      - dotnet-runtime-5.0
+  dnf:
+    name: "{{ jackett_tools }}"
+    state: latest
+    update_cache: yes
 
 - name: Build Releases url
   shell:
     cmd: curl https://github.com/Jackett/Jackett/releases | grep -Eio '(\/Jackett\/Jackett\/releases\/download\/)(.*)(\/Jackett.Binaries.LinuxAMDx64.tar.gz)' | sort -nr | head -1
   register: github_release
 
-- name: Debug output
-  debug:
-    msg: "https://github.com{{ github_release.stdout }}"
+- name: Get jackett Sources
+  get_url:
+    url: "https://github.com{{ github_release.stdout }}"
+    dest: /opt/apps/jackett/jackett.tar.gz
 
-#- name: Get jackett Sources
-#  get_url:
-#    url: https://github.com"{{ github_release.stdout }}"
-#    dest: /opt/apps/jackett/jackett.tar.gz
-#
-#- name: Unarchive jackett Sources
-#  unarchive:
-#    remote_src: yes
-#    src: /opt/apps/jackett/jackett.tar.gz
-#    dest: /opt/apps/jackett/.appdata/
-#
-#- name: Move folder
-#  stat:
-#    path: /opt/apps/jackett/.appdata/Jackett
-#  register: virginpath
-#
-#- name: Rename jackett to bin
-#  command:
-#    cmd: mv /opt/apps/jackett/.appdata/Jackett /opt/apps/jackett/.appdata/bin
-#  when: virginpath.stat.exists
-#
-#- name: Remove TAR archive
-#  file:
-#    name: /opt/apps/jackett/jackett.tar.gz
-#    state: absent
-#
-#- name: Update Ownership and Permissions
-#  file:
-#    path: /opt/apps/jackett/
-#    owner: jackett
-#    group: media
-#    mode: '0770'
-#    recurse: yes
-#
-#- name: Copy systemd service file
-#  ansible.posix.synchronize:
-#    checksum: yes
-#    src: jackett.service
-#    dest: /etc/systemd/system/jackett.service
-#    owner: yes
-#    group: yes
-#  register: systemd
-#
-#- name: Reload systemd
-#  systemd:
-#    daemon_reload: yes
-##  when: systemd.changed
-#
-#- name: Enable and Start jackett
-#  systemd:
-#    name: jackett
-#    enabled: yes
-#    state: started
-#
+- name: Unarchive jackett Sources
+  unarchive:
+    remote_src: yes
+    src: /opt/apps/jackett/jackett.tar.gz
+    dest: /opt/apps/jackett/.appdata/
+
+- name: Move folder
+  stat:
+    path: /opt/apps/jackett/.appdata/Jackett
+  register: virginpath
+
+- name: Rename jackett to bin
+  command:
+    cmd: mv /opt/apps/jackett/.appdata/Jackett /opt/apps/jackett/.appdata/bin
+  when: virginpath.stat.exists
+
+- name: Remove TAR archive
+  file:
+    name: /opt/apps/jackett/jackett.tar.gz
+    state: absent
+
+- name: Update Ownership and Permissions
+  file:
+    path: /opt/apps/jackett/
+    owner: jackett
+    group: media
+    mode: '0770'
+    recurse: yes
+
+- name: Copy systemd service file
+  ansible.posix.synchronize:
+    checksum: yes
+    src: jackett.service
+    dest: /etc/systemd/system/jackett.service
+    owner: yes
+    group: yes
+  register: systemd
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+#  when: systemd.changed
+
+- name: Enable and Start jackett
+  systemd:
+    name: jackett
+    enabled: yes
+    state: started
+
