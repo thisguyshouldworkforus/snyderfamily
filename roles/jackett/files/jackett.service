@@ -1,0 +1,17 @@
+[Unit]
+Description=Jackett Daemon
+After=network.target
+
+[Service]
+SyslogIdentifier=jackett
+Restart=always
+RestartSec=5
+Type=simple
+User=jackett
+Group=media
+WorkingDirectory=/opt/apps/jackett/.appdata
+ExecStart=/bin/bash /opt/apps/jackett/.appdata/jackett_launcher.sh"
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
