@@ -18,19 +18,19 @@
   user:
     name: "{{ item.name }}"
     uid: "{{ item.uid }}"
-    home: /opt/apps/"{{ item.name }}"
+    home: "/opt/apps/{{ item.name }}"
     create_home: yes
     move_home: yes
     password: "$6$13EsWp/t8Y4T0/xH$m2I7DWDjcodxFTHAZIad1lZSers0XREz1dHkHzckd5TLPxJ5Wipv32gD4236M2BSIc.SE/.6kEc89fyEj/e.00"
     group: media
     state: present
-  with_items:
-    - { name: 'plex', uid: '2000' }
-    - { name: 'jackett', uid: '2001' }
-    - { name: 'sabnzb', uid: '2002' }
-    - { name: 'sonarr', uid: '2003' }
-    - { name: 'tautulli', uid: '2004' }
-    - { name: 'transmission', uid: '2005' }
+  withitems:
+    - { name: plex, uid: 2000 }
+    - { name: jackett, uid: 2001 }
+    - { name: sabnzb, uid: 2002 }
+    - { name: sonarr, uid: 2003 }
+    - { name: tautulli, uid: 2004 }
+    - { name: transmission, uid: 2005 }
 
 - name: Create OPT APPS NZBAPPDATA directory on all Media Servers
   file:
