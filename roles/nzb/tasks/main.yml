@@ -11,31 +11,6 @@
     owner: yes
     group: yes
 
-- name: Create Media Group on all Media Servers
-  group:
-    name: media
-    gid: 3000
-    state: present
-    system: yes
-
-- name: Create OPT APPS directory on all Media Servers
-  file:
-    path: /opt/apps
-    state: directory
-    group: media
-    owner: root
-    mode: '770'
-
-- name: Create the sabnzb user
-  user:
-    name: sabnzb
-    home: /opt/apps/sabnzb
-    create_home: yes
-    move_home: yes
-    password: "$6$13EsWp/t8Y4T0/xH$m2I7DWDjcodxFTHAZIad1lZSers0XREz1dHkHzckd5TLPxJ5Wipv32gD4236M2BSIc.SE/.6kEc89fyEj/e.00"
-    group: media
-    state: present
-
 - name: Create OPT APPS NZBAPPDATA directory on all Media Servers
   file:
     path: /opt/apps/nzb_appdata

@@ -1,7 +1,15 @@
 ---
 - name: Set a hostname
   hostname:
-    name: sonarr
+    name: jackett
+
+- name: Create OPT APPS APPDATA directory
+  file:
+    path: /opt/apps/jackett/.appdata/
+    state: directory
+    group: media
+    owner: jackett
+    mode: '770'
 
 - name: Setup /etc/hosts file
   ansible.posix.synchronize:
@@ -10,46 +18,6 @@
     dest: /etc/hosts
     owner: yes
     group: yes
-
-- name: Create OPT APPS MEDIA directory
-  file:
-    path: /opt/apps/media
-    state: directory
-    group: media
-    owner: root
-    mode: '770'
-
-- name: Create OPT APPS APPDATA directory
-  file:
-    path: /opt/apps/sonarr/.appdata/
-    state: directory
-    group: media
-    owner: sonarr
-    mode: '770'
-
-- name: Create OPT APPS NZBAPPDATA directory on all Media Servers
-  file:
-    path: /opt/apps/nzb_appdata
-    state: directory
-    group: media
-    owner: root
-    mode: '770'
-
-- name: Mount NFS location on all Media Servers
-  ansible.posix.mount:
-    src: wickednas.snyderfamily.int:/plex
-    path: /opt/apps/media
-    fstype: nfs
-    opts: defaults,rw
-    state: mounted
-
-- name: Mount NFS location on all Media Servers
-  ansible.posix.mount:
-    src: wickednas.snyderfamily.int:/nzb_appdata
-    path: /opt/apps/nzb_appdata
-    fstype: nfs
-    opts: defaults,rw
-    state: mounted
 
 # Install the application
 - name: Import GPG Key
@@ -68,9 +36,9 @@
     keepcache: "0"
     metadata_expire: "1"
 
-- name: Import Sonarr Required Utilities
+- name: Import jackett Required Utilities
   vars:
-    sonarr_tools:
+    jackett_tools:
       - wget
       - git
       - par2cmdline
@@ -95,40 +63,40 @@
       - mono-devel
       - sqlite
   dnf:
-    name: "{{ sonarr_tools }}"
+    name: "{{ jackett_tools }}"
     state: latest
     update_cache: yes
 
-- name: Get Sonarr Sources
+- name: Get jackett Sources
   get_url:
-    url: https://services.sonarr.tv/v1/download/phantom-develop/latest?version=3&os=linux
-    dest: /opt/apps/sonarr/sonarr.tar.gz
+    url: https://services.jackett.tv/v1/download/phantom-develop/latest?version=3&os=linux
+    dest: /opt/apps/jackett/jackett.tar.gz
 
-- name: Unarchive Sonarr Sources
+- name: Unarchive jackett Sources
   unarchive:
     remote_src: yes
-    src: /opt/apps/sonarr/sonarr.tar.gz
-    dest: /opt/apps/sonarr/.appdata/
+    src: /opt/apps/jackett/jackett.tar.gz
+    dest: /opt/apps/jackett/.appdata/
 
 - name: Move folder
   stat:
-    path: /opt/apps/sonarr/.appdata/Sonarr
+    path: /opt/apps/jackett/.appdata/jackett
   register: virginpath
 
-- name: Rename Sonarr to bin
+- name: Rename jackett to bin
   command:
-    cmd: mv /opt/apps/sonarr/.appdata/Sonarr /opt/apps/sonarr/.appdata/bin
+    cmd: mv /opt/apps/jackett/.appdata/jackett /opt/apps/jackett/.appdata/bin
   when: virginpath.stat.exists
 
 - name: Remove TAR archive
   file:
-    name: /opt/apps/sonarr/sonarr.tar.gz
+    name: /opt/apps/jackett/jackett.tar.gz
     state: absent
 
 - name: Update Ownership and Permissions
   file:
-    path: /opt/apps/sonarr/
-    owner: sonarr
+    path: /opt/apps/jackett/
+    owner: jackett
     group: media
     mode: '0770'
     recurse: yes
@@ -136,8 +104,8 @@
 - name: Copy systemd service file
   ansible.posix.synchronize:
     checksum: yes
-    src: sonarr.service
-    dest: /etc/systemd/system/sonarr.service
+    src: jackett.service
+    dest: /etc/systemd/system/jackett.service
     owner: yes
     group: yes
   register: systemd
@@ -147,9 +115,9 @@
     daemon_reload: yes
   when: systemd.changed
 
-- name: Enable and Start Sonarr
+- name: Enable and Start jackett
   systemd:
-    name: sonarr
+    name: jackett
     enabled: yes
     state: started
 
