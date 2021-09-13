@@ -1,0 +1,64 @@
+---
+- name: Create Media Group on all Media Servers
+  group:
+    name: media
+    gid: 3000
+    state: present
+    system: yes
+
+- name: Create OPT APPS directory on all Media Servers
+  file:
+    path: /opt/apps
+    state: directory
+    group: media
+    owner: root
+    mode: '770'
+
+- name: Create user HOME directories on all Media Servers
+  file:
+    path: /opt/apps/"{{ item }}"
+    state: directory
+    group: media
+    owner: root
+    mode: '770'
+  with items:
+    - plex
+    - jackett
+    - sabnzb
+    - sonarr
+    - tautulli
+    - transmission
+
+- name: Create the users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    home: /opt/apps/"{{ item.name }}"
+    create_home: yes
+    move_home: yes
+    password: "$6$13EsWp/t8Y4T0/xH$m2I7DWDjcodxFTHAZIad1lZSers0XREz1dHkHzckd5TLPxJ5Wipv32gD4236M2BSIc.SE/.6kEc89fyEj/e.00"
+    group: media
+    state: present
+  with items:
+    - { name: 'plex', uid: '2000' }
+    - { name: 'jackett', uid: '2001' }
+    - { name: 'sabnzb', uid: '2002' }
+    - { name: 'sonarr', uid: '2003' }
+    - { name: 'tautulli', uid: '2004' }
+    - { name: 'transmission', uid: '2005' }
+
+- name: Create OPT APPS NZBAPPDATA directory on all Media Servers
+  file:
+    path: /opt/apps/nzb_appdata
+    state: directory
+    group: media
+    owner: root
+    mode: '770'
+
+- name: Mount NFS location on all Media Servers
+  ansible.posix.mount:
+    src: wickednas.snyderfamily.int:/nzb_appdata
+    path: /opt/apps/nzb_appdata
+    fstype: nfs
+    opts: defaults,rw
+    state: mounted
